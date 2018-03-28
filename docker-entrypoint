@@ -44,6 +44,10 @@ if [ "$1" = 'autoheal' ] && [ -e ${DOCKER_SOCK} ]; then
     for CONTAINER in `ls $TMP_DIR`; do 
         DATE=$(date +%d-%m-%Y" "%H:%M:%S)
         echo "$DATE Restarting container ${CONTAINER:0:12}"
+        if [[ -n $MAILTO  && -n $MAILFROM ]]; then
+            NAME=$(curl --no-buffer -s -XGET --unix-socket ${DOCKER_SOCK} http://localhost/containers/${CONTAINER}/json | jq -r .Name)
+            echo "$DATE Attempt to restart unhealthy container ${NAME}" | mail -s "Restart unhealthy container: ${NAME}" $MAILTO -F $MAILFROM -f $MAILFROM
+        fi
         curl -f --no-buffer -s -XPOST --unix-socket ${DOCKER_SOCK} http://localhost/containers/${CONTAINER}/restart && rm "$TMP_DIR/$CONTAINER" || echo "$DATE Restarting container ${CONTAINER:0:12} failed"
     done
   done

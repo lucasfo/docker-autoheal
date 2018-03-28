@@ -1,6 +1,6 @@
 FROM alpine:3.5
 
-RUN apk add --no-cache curl jq
+RUN apk add --no-cache curl jq ssmtp mailx
 
 COPY docker-entrypoint /
 ENTRYPOINT ["/docker-entrypoint"]
